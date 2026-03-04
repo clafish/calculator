@@ -14,20 +14,20 @@ operators.Add("^");
 
 // TOKENIZER
 
-var result = new List<string>();
-var buffer = new List<char>();
+var result = new ArrayList();
+var buffer = new ArrayList();
 
 foreach (char symbol in expression)
 {
 
     if (char.IsNumber(symbol))
     {
-        buffer.Add(symbol);
+        buffer.Add(symbol.ToString());
     }
 
     else if (char.IsWhiteSpace(symbol))
     {
-        if (buffer.Count > 0)
+        if (buffer.Count() > 0)
         {
             string token = string.Join("", buffer);
             result.Add(token);
@@ -37,7 +37,7 @@ foreach (char symbol in expression)
 
     else if (operators.Contains(symbol.ToString()))
     {
-        if (buffer.Count > 0)
+        if (buffer.Count() > 0)
         {
             string token = string.Join("", buffer);
             result.Add(token);
@@ -64,11 +64,11 @@ result.Add(last_token);
 var output = new Queue();
 var stack = new Stack();
 
-for (int i = 0; i < result.Count; i++)
+for (int i = 0; i < result.Count(); i++)
 {
-    string token = result[i];
+    string token = result.GetValue(i);
 
-    if (int.TryParse(result[i], out _))
+    if (int.TryParse(result.GetValue(i), out _))
     {
         output.Enqueue(token);   
     }

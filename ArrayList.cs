@@ -65,4 +65,12 @@ public class ArrayList
     {
         return _pointer;
     }
+
+    public void Clear()
+    {
+        foreach (var element in _array)
+        {
+            this.Remove(element);
+        }
+    }
 }
