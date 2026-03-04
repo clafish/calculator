@@ -18,6 +18,7 @@ public class ArrayList
             _array[_pointer] = value;
             _pointer++;
         }
+        
         _array[_pointer] = value;
         _pointer++;
     }
@@ -68,9 +69,17 @@ public class ArrayList
 
     public void Clear()
     {
-        foreach (var element in _array)
+        _pointer = 0;
+    }
+
+    public string Join()
+    {
+        string result = "";
+        for (int i = 0; i < _pointer; i++)
         {
-            this.Remove(element);
+            result += _array[i];
         }
+
+        return result;
     }
 }

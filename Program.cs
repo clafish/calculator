@@ -29,8 +29,7 @@ foreach (char symbol in expression)
     {
         if (buffer.Count() > 0)
         {
-            string token = string.Join("", buffer);
-            result.Add(token);
+            result.Add(buffer.Join());
             buffer.Clear();
         }
     }
@@ -39,8 +38,7 @@ foreach (char symbol in expression)
     {
         if (buffer.Count() > 0)
         {
-            string token = string.Join("", buffer);
-            result.Add(token);
+            result.Add(buffer.Join());
             buffer.Clear();
         }
 
@@ -48,16 +46,21 @@ foreach (char symbol in expression)
     }
 
     else if (symbol == '(' || symbol == ')')
+    {
+        if (buffer.Count() > 0)
+        {
+            result.Add(buffer.Join());
+            buffer.Clear();
+        }
         result.Add(Convert.ToString(symbol));
+        buffer.Clear();
+    }
 }
 
-string last_token = string.Join("", buffer);
-result.Add(last_token);
+result.Add(buffer.Join());
 
-// foreach (var i in result)
-// {
-//     Console.WriteLine(i);
-// }
+for (var i = 0; i < result.Count(); i++)
+    Console.WriteLine(result.GetValue(i));
 
 // THE TRANSLATOR TO POSTFIX NOTATION
 
@@ -121,8 +124,8 @@ int GetPrecedense(string operat)
     return 0;
 }
 
-while (output.Lenght() > 0) 
-    Console.WriteLine(output.Dequeue());
+// while (output.Lenght() > 0) 
+//     Console.WriteLine(output.Dequeue());
 
 // CALCULATING
 
@@ -154,4 +157,3 @@ while (output.Lenght() > 0)
 }
 
 Console.WriteLine($"The result is: {last_result.Pull()}");
-
