@@ -1,17 +1,25 @@
-﻿using System.Collections;
+﻿using calculator_Andrii_Korzh;
+using Queue = calculator_Andrii_Korzh.Queue;
+using Stack = calculator_Andrii_Korzh.Stack;
 
 Console.WriteLine("Enter your expression: ");
 string expression = Console.ReadLine();
 
-var operators = new List<char> { '+', '-', '*', '/'};
+var operators = new ArrayList();
+operators.Add("+");
+operators.Add("-");
+operators.Add("*");
+operators.Add("/");
+operators.Add("^");
+
+// TOKENIZER
 
 var result = new List<string>();
 var buffer = new List<char>();
 
-int counter = 1;
 foreach (char symbol in expression)
 {
-    
+
     if (char.IsNumber(symbol))
     {
         buffer.Add(symbol);
@@ -26,8 +34,8 @@ foreach (char symbol in expression)
             buffer.Clear();
         }
     }
-    
-    else if (operators.Contains(symbol))
+
+    else if (operators.Contains(symbol.ToString()))
     {
         if (buffer.Count > 0)
         {
@@ -35,17 +43,115 @@ foreach (char symbol in expression)
             result.Add(token);
             buffer.Clear();
         }
+
         result.Add(Convert.ToString(symbol));
     }
 
-    counter++;
+    else if (symbol == '(' || symbol == ')')
+        result.Add(Convert.ToString(symbol));
 }
 
 string last_token = string.Join("", buffer);
 result.Add(last_token);
 
-foreach (var i in result)
+// foreach (var i in result)
+// {
+//     Console.WriteLine(i);
+// }
+
+// THE TRANSLATOR TO POSTFIX NOTATION
+
+var output = new Queue();
+var stack = new Stack();
+
+for (int i = 0; i < result.Count; i++)
 {
-    Console.WriteLine(i);
+    string token = result[i];
+
+    if (int.TryParse(result[i], out _))
+    {
+        output.Enqueue(token);   
+    }
+    
+    else if (operators.Contains(token))
+    {
+        while (stack.Peek() != null && stack.Peek() != "(" && (GetPrecedense(token) <= GetPrecedense(stack.Peek())))
+        {
+            output.Enqueue(stack.Pull());
+        }
+        stack.Push(token);
+    }
+    
+    else if (token == ",")
+    {
+        while (stack.Peek() != "(")
+        {
+            output.Enqueue(stack.Pull());
+        }
+    }
+    
+    else if (token == "(")
+    {
+        stack.Push(token);
+    }
+    
+    else if (token == ")")
+    {
+        while (stack.Peek() != "(")
+        {
+            output.Enqueue(stack.Pull());
+        }
+        stack.Pull();
+    }
 }
+
+while (stack.Lenght() > 0)
+{
+    output.Enqueue(stack.Pull());
+}
+
+int GetPrecedense(string operat)
+{
+    if (operat == "+" || operat == "-")
+        return 0; 
+    if (operat == "*" || operat == "/")
+        return 1;
+    if (operat == "^")
+        return 2;
+    return 0;
+}
+
+while (output.Lenght() > 0) 
+    Console.WriteLine(output.Dequeue());
+
+// CALCULATING
+
+var last_result = new Stack();
+
+while (output.Lenght() > 0)
+{
+    var token = output.Dequeue();
+    if (int.TryParse(token, out _))
+    {
+        last_result.Push(token);
+    }
+    else if (operators.Contains(token))
+    {
+        float first = float.Parse(last_result.Pull());
+        float second = float.Parse(last_result.Pull());
+        
+        if (token == "+")
+            last_result.Push((second + first).ToString());
+        else if (token == "-")
+            last_result.Push((second - first).ToString());
+        else if (token == "*")
+            last_result.Push((second * first).ToString());
+        else if (token == "/")
+            last_result.Push((second / first).ToString());
+        else if (token == "^")
+            last_result.Push((Math.Pow(second, first)).ToString());
+    }
+}
+
+Console.WriteLine($"The result is: {last_result.Pull()}");
 

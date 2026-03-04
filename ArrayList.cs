@@ -4,7 +4,7 @@ public class ArrayList
 {
     private string[] _array = new string[50];
     public int _pointer;
-
+    
     public void Add(string value)
     {
         if (_pointer == _array.Length)
@@ -44,8 +44,25 @@ public class ArrayList
         return _array[index];
     }
 
-    public int Lenght()
+    public int IndexOf(string element)
     {
-        return _array.Length;
+        for (var i = 0; i < _array.Length; i++)
+        {
+            if (_array[i] == element)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    public bool Contains(string element)
+    {
+        return IndexOf(element) != -1;
+    }
+    
+    public int Count()
+    {
+        return _pointer;
     }
 }
