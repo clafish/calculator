@@ -23,6 +23,11 @@ public class ArrayList
         _pointer++;
     }
 
+    public void Insert(int index, string value)
+    {
+        _array.SetValue(value, index);
+    }
+    
     public void Remove(string value)
     {
         for (int i = 0; i < _pointer; i++)
