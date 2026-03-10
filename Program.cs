@@ -4,6 +4,7 @@ using Stack = calculator_Andrii_Korzh.Stack;
 
 Console.WriteLine("Enter your expression: ");
 string expression = Console.ReadLine();
+expression = expression.Replace(" ", "");
 
 var operators = new ArrayList();
 operators.Add("+");
@@ -20,6 +21,9 @@ letters.Add("c");
 letters.Add("o");
 letters.Add("t");
 letters.Add("g");
+letters.Add("m");
+letters.Add("a");
+letters.Add("x");
 
 var possibleFunctions = new ArrayList();
 possibleFunctions.Add("sin");
@@ -39,15 +43,6 @@ foreach (char symbol in expression)
     if (char.IsNumber(symbol))
     {
         buffer.Add(symbol.ToString());
-    }
-
-    else if (char.IsWhiteSpace(symbol))
-    {
-        if (buffer.Count() > 0)
-        {
-            result.Add(buffer.Join());
-            buffer.Clear();
-        }
     }
 
     else if (operators.Contains(symbol.ToString()))
@@ -83,6 +78,16 @@ foreach (char symbol in expression)
     else if (symbol == '.' || symbol == ',')
     {
         buffer.Add(symbol.ToString());
+    }
+    
+    else if (symbol == ';')
+    {
+        if (buffer.Count() > 0)
+        {
+            result.Add(buffer.Join());
+            buffer.Clear();
+        }
+        result.Add(symbol.ToString());
     }
     
     else if (letters.Contains(symbol.ToString()))
@@ -121,7 +126,7 @@ for (int i = 0; i < result.Count(); i++)
 {
     string token = result.GetValue(i);
 
-    if (double.TryParse(result.GetValue(i), out _))
+    if (double.TryParse(token, out _))
     {
         output.Enqueue(token);   
     }
@@ -133,7 +138,7 @@ for (int i = 0; i < result.Count(); i++)
     
     else if (operators.Contains(token))
     {
-        while (stack.Peek() != null && stack.Peek() != "(" && (GetPrecedense(token) <= GetPrecedense(stack.Peek())))
+        while (stack.Peek() != null && stack.Peek() != "(" && GetPrecedense(stack.Peek()) >= GetPrecedense(token))
         {
             output.Enqueue(stack.Pull());
         }
@@ -151,17 +156,31 @@ for (int i = 0; i < result.Count(); i++)
         {
             output.Enqueue(stack.Pull());
         }
-        stack.Pull();
         
-        if (stack.Peek() != null && possibleFunctions.Contains(stack.Peek()))
+        if (stack.Peek() == "(")
+        {
+            stack.Pull();
+        }
+        
+        if (possibleFunctions.Contains(stack.Peek()))
         {
             output.Enqueue(stack.Pull()); 
+        }
+    }
+    
+    else if (token == ";")
+    {
+        while (stack.Peek() != null && stack.Peek() != "(")
+        {
+            output.Enqueue(stack.Pull());
         }
     }
 }
 
 while (stack.Lenght() > 0)
 {
+    if (stack.Pull() == null)
+        break;
     output.Enqueue(stack.Pull());
 }
 
@@ -186,7 +205,7 @@ var lastResult = new Stack();
 while (output.Lenght() > 0)
 {
     var token = output.Dequeue();
-    if (double.TryParse(token, out _))
+    if (token.Length > 0 && char.IsDigit(token[0])) 
     {
         lastResult.Push(token);
     }
@@ -211,25 +230,38 @@ while (output.Lenght() > 0)
     
     else if (possibleFunctions.Contains(token))
     {
-        float degrees = float.Parse(lastResult.Pull().Replace(".", ","));
-        double radians = degrees * Math.PI / 180;
         
-        if (token == "sin")
-            lastResult.Push(Math.Round(Math.Sin(radians), 4).ToString());
-        else if (token == "cos")
-            lastResult.Push(Math.Round(Math.Cos(radians), 4).ToString());
-        else if (token == "tg")
+        if (token == "max")
         {
-            if (Math.Abs(degrees % 180) == 90)
-                throw new Exception("Tangents is undefined");
-            lastResult.Push(Math.Round(Math.Tan(radians), 4).ToString());
+            float first = float.Parse(lastResult.Pull().Replace(".", ","));
+            float second = float.Parse(lastResult.Pull().Replace(".", ","));
+            lastResult.Push(Math.Max(first, second).ToString());
         }
-        else if (token == "ctg")
+        
+        else
         {
-
-            if (degrees % 180 == 0)
-                throw new Exception("Cotangents is undefined");
-            lastResult.Push(Math.Round((1 / Math.Tan(radians)), 4).ToString());
+            float degrees = float.Parse(lastResult.Pull().Replace(".", ","));
+            double radians = degrees * Math.PI / 180;
+        
+            if (token == "sin")
+                lastResult.Push(Math.Round(Math.Sin(radians), 4).ToString());
+        
+            else if (token == "cos")
+                lastResult.Push(Math.Round(Math.Cos(radians), 4).ToString());
+        
+            else if (token == "tg")
+            {
+                if (Math.Abs(degrees % 180) == 90)
+                    throw new Exception("Tangents is undefined");
+                lastResult.Push(Math.Round(Math.Tan(radians), 4).ToString());
+            }
+        
+            else if (token == "ctg")
+            {
+                if (degrees % 180 == 0)
+                    throw new Exception("Cotangents is undefined");
+                lastResult.Push(Math.Round((1 / Math.Tan(radians)), 4).ToString());
+            }
         }
     }
 }
