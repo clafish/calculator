@@ -93,12 +93,6 @@ foreach (char symbol in expression)
     else if (letters.Contains(symbol.ToString()))
     {
         functionsBuffer.Add(symbol.ToString());
-        if (possibleFunctions.Contains(functionsBuffer.Join()))
-        {
-            functionsBuffer.Join();
-            if (!possibleFunctions.Contains(functionsBuffer.Join()))
-                throw new Exception("Wrong function");
-        }
     }
 }
 
@@ -106,6 +100,16 @@ result.Add(buffer.Join());
 
 for (var i = 0; i < result.Count(); i++)
 {
+    for (int j = 0; j < letters.Count(); j++)
+    {
+        if (result.GetValue(i).Contains(letters.GetValue(j)))
+        {
+            if (!possibleFunctions.Contains(result.GetValue(i)))
+                throw new Exception("Wrong function");
+            // if (possibleFunctions.Contains(result.GetValue(i)) && (!result.Contains(")" ) || !result.Contains("(")))
+            //     throw new Exception("Invalid syntax");
+        }
+    }
     if (result.GetValue(i).Contains("."))
     {
         var value = result.GetValue(i).Replace(".", ",");
@@ -118,9 +122,9 @@ for (var i = 0; i < result.Count(); i++)
 
 // THE TRANSLATOR TO POSTFIX NOTATION
 
-
 var output = new Queue();
 var stack = new Stack();
+var astQueue = new Queue();
 
 for (int i = 0; i < result.Count(); i++)
 {
@@ -129,6 +133,7 @@ for (int i = 0; i < result.Count(); i++)
     if (double.TryParse(token, out _))
     {
         output.Enqueue(token);   
+        astQueue.Enqueue(token); 
     }
 
     else if (possibleFunctions.Contains(token))
@@ -140,7 +145,9 @@ for (int i = 0; i < result.Count(); i++)
     {
         while (stack.Peek() != null && stack.Peek() != "(" && GetPrecedense(stack.Peek()) >= GetPrecedense(token))
         {
-            output.Enqueue(stack.Pull());
+            var varuable = stack.Pull();
+            output.Enqueue(varuable);
+            astQueue.Enqueue(varuable); 
         }
         stack.Push(token);
     }
@@ -154,7 +161,9 @@ for (int i = 0; i < result.Count(); i++)
     {
         while (stack.Peek() != "(")
         {
-            output.Enqueue(stack.Pull());
+            var varuable = stack.Pull();
+            output.Enqueue(varuable);
+            astQueue.Enqueue(varuable); 
         }
         
         if (stack.Peek() == "(")
@@ -164,7 +173,9 @@ for (int i = 0; i < result.Count(); i++)
         
         if (possibleFunctions.Contains(stack.Peek()))
         {
-            output.Enqueue(stack.Pull()); 
+            var varuable = stack.Pull();
+            output.Enqueue(varuable);
+            astQueue.Enqueue(varuable); 
         }
     }
     
@@ -172,16 +183,20 @@ for (int i = 0; i < result.Count(); i++)
     {
         while (stack.Peek() != null && stack.Peek() != "(")
         {
-            output.Enqueue(stack.Pull());
+            var varuable = stack.Pull();
+            output.Enqueue(varuable);
+            astQueue.Enqueue(varuable);
         }
     }
 }
 
 while (stack.Lenght() > 0)
 {
-    if (stack.Pull() == null)
+    if (stack.Peek() == null)
         break;
-    output.Enqueue(stack.Pull());
+    var varuable = stack.Pull();
+    output.Enqueue(varuable);
+    astQueue.Enqueue(varuable);
 }
 
 int GetPrecedense(string operat)
@@ -267,3 +282,8 @@ while (output.Lenght() > 0)
 }
 
 Console.WriteLine($"The result is: {lastResult.Pull()}");
+
+var ast = new AST();
+ast._queue = astQueue;
+ast.Algorithm();
+ast.Draw(ast._nodes.Pull(), "", false, true);

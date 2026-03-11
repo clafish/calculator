@@ -1,6 +1,6 @@
 ﻿namespace calculator_Andrii_Korzh;
 
-public class Queue
+public class Queue 
 {
     private ArrayList _queue = new ArrayList();
     private int _pointerFirst;

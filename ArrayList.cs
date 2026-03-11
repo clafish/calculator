@@ -15,8 +15,8 @@ public class ArrayList
                 newArray[i] = _array[i];
             
             _array = newArray;
-            _array[_pointer] = value;
-            _pointer++;
+            // _array[_pointer] = value;
+            // _pointer++;
         }
         
         _array[_pointer] = value;
